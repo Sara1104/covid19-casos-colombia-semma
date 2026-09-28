@@ -17,16 +17,16 @@ la metodología SEMMA.
 ## Integrantes
 | N.º | Integrante | Responsabilidad | Dimensión |
 |---|---|---|---|
-| 1 | Sara Vargas | Administración del repositorio | Poblacional |
+| 1 | Sara Vargas Carreño| Administración del repositorio | Poblacional |
 | 2 | Diego Armando Guzmán Garzón | Configuración de Flask | Territorial |
 | 3 | Diego Nicolás Castellanos Martínez | Publicación de la aplicación | Temporal |
 | 4 | Jennifer Andrea Espitia Porra | Informe técnico | Relacional y multivariada |
 
 ## Aplicación publicada
-(URL; la completa la Integrante 3 cuando publique)
+(URL; la completa el Integrante 3 cuando publique)
 
 ## Cómo ejecutar el proyecto localmente
-(La Integrante 2 completará esta sección)
+(El Integrante 2 completará esta sección)
 
 ## Flujo de trabajo
 Ver [CONTRIBUTING.md](CONTRIBUTING.md).
