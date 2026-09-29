@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "_componentes.html" as c %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+
+<section class="portada p-4 p-md-5 rounded-4 mb-4">
+  <p class="text-uppercase small fw-semibold mb-2 opacity-75">{{ proyecto.grupo }} · Metodología SEMMA</p>
+  <h1 class="display-6 fw-bold mb-3">Análisis de casos positivos de COVID-19 en Chía, Cundinamarca</h1>
+  <p class="lead mb-0 opacity-90">
+    Análisis exploratorio de las personas con diagnóstico confirmado de COVID-19 en el municipio de Chía,
+    para identificar conocimientos evidentes mediante indicadores, comparaciones y visualizaciones.
+  </p>
+</section>
+
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+  {{ c.indicador("{:,}".format(resumen.registros).replace(",", "."), "Casos registrados", "bi-people") }}
+  {{ c.indicador(resumen.variables, "Variables", "bi-table") }}
+  {{ c.indicador(resumen.edad_promedio ~ " años", "Edad promedio", "bi-person") }}
+  {{ c.indicador("{:,}".format(resumen.fallecidos).replace(",", "."), "Fallecidos", "bi-heart-pulse") }}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold">Conjunto de datos</h2>
+        <dl class="row small mb-0">
+          <dt class="col-sm-4">Nombre</dt><dd class="col-sm-8">Casos positivos de COVID-19 en Colombia</dd>
+          <dt class="col-sm-4">Entidad</dt><dd class="col-sm-8">Instituto Nacional de Salud (INS)</dd>
+          <dt class="col-sm-4">Población</dt><dd class="col-sm-8">Personas con caso confirmado de COVID-19 en Chía</dd>
+          <dt class="col-sm-4">Periodo</dt><dd class="col-sm-8">{{ resumen.fecha_min }} a {{ resumen.fecha_max }} (fecha de notificación)</dd>
+          <dt class="col-sm-4">URL</dt><dd class="col-sm-8"><a href="{{ proyecto.url_datos }}" target="_blank" rel="noopener">{{ proyecto.url_datos }}</a></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold">Dimensiones de análisis</h2>
+        <div class="list-group list-group-flush">
+          {% for endpoint, texto in menu_dimensiones %}
+          <a href="{{ url_for(endpoint) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0">
+            {{ texto }} <i class="bi bi-arrow-right"></i>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

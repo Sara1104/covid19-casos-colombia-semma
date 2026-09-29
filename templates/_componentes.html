@@ -1,0 +1,75 @@
+{# Componentes reutilizables para que todos los tableros se vean igual.
+   Uso en una plantilla:  {% import "_componentes.html" as c %}  #}
+
+{% macro encabezado(titulo, pregunta, integrante) %}
+<header class="mb-4">
+  <p class="text-uppercase small fw-semibold text-acento mb-1">{{ integrante }}</p>
+  <h1 class="h2 fw-bold mb-2">{{ titulo }}</h1>
+  <div class="pregunta p-3 rounded-3">
+    <i class="bi bi-question-circle me-2"></i><strong>Pregunta de análisis:</strong> {{ pregunta }}
+  </div>
+</header>
+{% endmacro %}
+
+{% macro indicador(valor, etiqueta, icono="bi-bar-chart", detalle="") %}
+<div class="col">
+  <div class="card indicador h-100">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-2 text-secondary small mb-1">
+        <i class="bi {{ icono }}"></i><span>{{ etiqueta }}</span>
+      </div>
+      <div class="valor">{{ valor }}</div>
+      {% if detalle %}<div class="small text-secondary">{{ detalle }}</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro grafica(titulo, html_grafica, interpretacion) %}
+<div class="card grafica mb-4">
+  <div class="card-body">
+    <h2 class="h5 fw-semibold mb-3">{{ titulo }}</h2>
+    {{ html_grafica | safe }}
+    <div class="interpretacion mt-3 p-3 rounded-3">
+      <strong><i class="bi bi-lightbulb me-1"></i>Interpretación:</strong> {{ interpretacion }}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{# c: diccionario con pregunta, variables, procedimiento, evidencia, hallazgo,
+      interpretacion, utilidad, limitacion #}
+{% macro conocimiento(numero, c) %}
+<div class="accordion-item">
+  <h3 class="accordion-header">
+    <button class="accordion-button {% if numero > 1 %}collapsed{% endif %}" type="button"
+            data-bs-toggle="collapse" data-bs-target="#conocimiento{{ numero }}">
+      Conocimiento {{ numero }}: {{ c.hallazgo }}
+    </button>
+  </h3>
+  <div id="conocimiento{{ numero }}" class="accordion-collapse collapse {% if numero == 1 %}show{% endif %}">
+    <div class="accordion-body">
+      <dl class="row mb-0 small">
+        {% for clave, nombre in [("pregunta","Pregunta"),("variables","Variables"),
+                                 ("procedimiento","Procedimiento"),("evidencia","Evidencia"),
+                                 ("hallazgo","Hallazgo"),("interpretacion","Interpretación"),
+                                 ("utilidad","Utilidad"),("limitacion","Limitación")] %}
+        <dt class="col-sm-3">{{ nombre }}</dt><dd class="col-sm-9">{{ c[clave] }}</dd>
+        {% endfor %}
+      </dl>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro en_construccion() %}
+<div class="alert alert-light border d-flex gap-3 align-items-start">
+  <i class="bi bi-cone-striped fs-3 text-acento"></i>
+  <div>
+    <strong>Tablero en construcción.</strong>
+    Debe incluir: descripción de variables, 3 indicadores, 3 visualizaciones,
+    2 filtros interactivos, interpretación de cada visualización,
+    3 conocimientos evidentes, 1 limitación y 1 decisión sustentada.
+  </div>
+</div>
+{% endmacro %}
