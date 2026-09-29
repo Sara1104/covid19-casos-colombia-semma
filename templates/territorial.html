@@ -1,7 +1,159 @@
 {% extends "base.html" %}
 {% import "_componentes.html" as c %}
 {% block titulo %}Dimensión territorial{% endblock %}
+{% macro num(n) %}{{ "{:,.0f}".format(n).replace(",", ".") }}{% endmacro %}
 {% block contenido %}
 {{ c.encabezado("Dimensión territorial", pregunta, "Integrante 2 · Diego Armando Guzmán Garzón") }}
-{{ c.en_construccion() }}
+
+<div class="alert alert-light border small mb-4">
+  <i class="bi bi-info-circle me-1"></i>
+  El conjunto del equipo solo contiene Chía. Para comparar territorios, esta dimensión usa un
+  <a href="{{ url_extracto }}" target="_blank" rel="noopener">extracto del mismo dataset del INS</a>
+  con los 11 municipios de la provincia <strong>Sabana Centro</strong> ({{ num(total_provincia) }} casos).
+  Chía aparece resaltado en naranja en todas las gráficas.
+</div>
+
+<!-- Variables -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 fw-semibold mb-3">Variables utilizadas</h2>
+    <div class="table-responsive">
+      <table class="table table-sm small mb-0 align-middle">
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Tipo</th></tr></thead>
+        <tbody>
+          {% for nombre, desc, tipo in variables %}
+          <tr><td><code>{{ nombre }}</code></td><td>{{ desc }}</td><td class="text-nowrap">{{ tipo }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="filtros p-3 mb-4 row g-2 align-items-end">
+  <div class="col-6 col-md-3">
+    <label for="anio" class="form-label small fw-semibold mb-1">Año de notificación</label>
+    <select id="anio" name="anio" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="todos">Todos</option>
+      {% for a in anios %}<option value="{{ a }}" {% if filtros.anio == a|string %}selected{% endif %}>{{ a }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-6 col-md-3">
+    <label for="sexo" class="form-label small fw-semibold mb-1">Sexo</label>
+    <select id="sexo" name="sexo" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="todos">Todos</option>
+      {% for s in sexos %}<option value="{{ s }}" {% if filtros.sexo == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-6 col-md-3">
+    <label for="edad" class="form-label small fw-semibold mb-1">Grupo de edad</label>
+    <select id="edad" name="edad" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="todos">Todos</option>
+      {% for e in edades %}<option value="{{ e }}" {% if filtros.edad == e %}selected{% endif %}>{{ e }} años</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-6 col-md-3">
+    <a href="{{ url_for('territorial.tablero') }}" class="btn btn-outline-secondary btn-sm w-100">
+      <i class="bi bi-arrow-counterclockwise me-1"></i>Quitar filtros
+    </a>
+  </div>
+  <noscript><div class="col-12"><button class="btn btn-primary btn-sm">Aplicar</button></div></noscript>
+</form>
+
+{% if not hay_datos %}
+<div class="alert alert-warning">No hay casos con esa combinación de filtros.</div>
+{% else %}
+
+<!-- Indicadores -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
+  {{ c.indicador(num(casos), "Casos en Sabana Centro", "bi-people", "11 municipios, según filtros") }}
+  {{ c.indicador("%.1f%%"|format(participacion_chia), "Participación de Chía", "bi-geo-alt", "del total de casos de la provincia") }}
+  {{ c.indicador("%.1f%%"|format(top3), "Concentración en 3 municipios", "bi-pin-map", top3_nombres) }}
+  {{ c.indicador("%.2f%%"|format(mayor_letalidad.valor), "Mayor letalidad", "bi-heart-pulse",
+                 mayor_letalidad.municipio ~ " · promedio " ~ "%.2f%%"|format(promedio_letalidad)) }}
+</div>
+
+<!-- Visualizaciones -->
+<p class="small text-secondary mb-3"><i class="bi bi-funnel me-1"></i>Las gráficas, los indicadores y la tabla responden a los filtros. Las interpretaciones describen el total de registros; con filtros, algunos valores cambian.</p>
+{{ c.grafica("1. Casos por municipio", g_casos,
+   "Tres municipios (" ~ top3_nombres ~ ") reúnen el " ~ "%.1f%%"|format(top3) ~ " de los casos, y Chía encabeza la provincia con el "
+   ~ "%.1f%%"|format(participacion_chia) ~ ". Los demás municipios aportan porcentajes mucho menores. La diferencia refleja sobre todo
+   el tamaño y la urbanización de cada municipio, por lo que no debe leerse como riesgo por habitante.") }}
+
+{{ c.grafica("2. Letalidad por municipio", g_letalidad,
+   "La línea punteada marca el promedio de la provincia (" ~ "%.2f%%"|format(promedio_letalidad) ~ "). " ~ mayor_letalidad.municipio
+   ~ " tiene la mayor letalidad. Los municipios con más casos no son los de mayor letalidad: Chía y Cajicá están por debajo del promedio,
+   mientras varios municipios pequeños lo superan. Al pasar el cursor se ven los fallecidos y casos de cada municipio; en los pequeños,
+   pocos fallecidos mueven mucho el porcentaje.") }}
+
+{{ c.grafica("3. Tipo de contagio por municipio", g_contagio,
+   "Cada barra suma 100% de los casos del municipio. El contagio comunitario (sin fuente identificada) predomina en todos, pero el peso
+   del contagio relacionado (contacto conocido) varía mucho: es mucho mayor en Tocancipá y Sopó que en Tabio o Cajicá. Los importados son
+   casi inexistentes.") }}
+
+<!-- Tabla resumen -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 fw-semibold mb-3">Resumen por municipio</h2>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover small mb-0 align-middle text-end">
+        <thead>
+          <tr><th class="text-start">Municipio</th><th>Casos</th><th>Participación</th><th>Fallecidos</th>
+              <th>Letalidad</th><th>Edad mediana</th><th>60 años o más</th><th>Contagio relacionado</th></tr>
+        </thead>
+        <tbody>
+          {% for f in tabla %}
+          <tr {% if f.municipio == "Chía" %}class="table-warning"{% endif %}>
+            <td class="text-start fw-semibold">{{ f.municipio }}</td>
+            <td>{{ num(f.casos) }}</td>
+            <td>{{ "%.1f%%"|format(f.participacion) }}</td>
+            <td>{{ num(f.fallecidos) }}</td>
+            <td>{{ "%.2f%%"|format(f.letalidad) }}</td>
+            <td>{{ "%.0f"|format(f.edad_mediana) }}</td>
+            <td>{{ "%.1f%%"|format(f.mayores_60) }}</td>
+            <td>{{ "%.1f%%"|format(f.relacionado) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Conocimientos evidentes -->
+<h2 class="h4 fw-bold mt-5 mb-1">Conocimientos evidentes</h2>
+<p class="small text-secondary mb-3">Calculados con todos los registros de Sabana Centro (sin filtros).</p>
+<div class="accordion mb-4" id="conocimientos">
+  {% for k in conocimientos %}{{ c.conocimiento(loop.index, k) }}{% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100 border-warning-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Limitación del análisis</h2>
+        <p class="small mb-0">
+          El dataset no incluye la población de cada municipio, así que las comparaciones se hacen con conteos y porcentajes
+          internos, no con tasas por cada 100.000 habitantes. Además, el municipio corresponde al lugar de notificación del caso,
+          que puede no coincidir con el lugar donde la persona se contagió, y la cantidad de casos depende de cuántas pruebas se
+          hicieron en cada municipio.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100 border-success-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-check2-circle me-1 text-success"></i>Decisión sustentada en los datos</h2>
+        <p class="small mb-0">
+          Ante un nuevo brote respiratorio, la provincia debería concentrar la capacidad de pruebas y atención en Chía, Zipaquirá
+          y Cajicá, donde está la mayoría de los casos. Al mismo tiempo, debería reforzar el seguimiento a adultos mayores y las
+          rutas de remisión hospitalaria en los municipios pequeños con letalidad por encima del promedio, como Nemocón, Cogua y Tenjo.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
