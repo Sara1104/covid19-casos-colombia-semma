@@ -1,7 +1,108 @@
 {% extends "base.html" %}
 {% import "_componentes.html" as c %}
 {% block titulo %}Dimensión poblacional{% endblock %}
+{% macro num(n) %}{{ "{:,.0f}".format(n).replace(",", ".") }}{% endmacro %}
 {% block contenido %}
 {{ c.encabezado("Dimensión poblacional", pregunta, "Integrante 1 · Sara Vargas Carreño") }}
-{{ c.en_construccion() }}
+
+<!-- Variables -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 fw-semibold mb-3">Variables utilizadas</h2>
+    <div class="table-responsive">
+      <table class="table table-sm small mb-0 align-middle">
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Tipo</th></tr></thead>
+        <tbody>
+          {% for nombre, desc, tipo in variables %}
+          <tr><td><code>{{ nombre }}</code></td><td>{{ desc }}</td><td class="text-nowrap">{{ tipo }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<form method="get" class="filtros p-3 mb-4 row g-2 align-items-end">
+  <div class="col-6 col-md-4">
+    <label for="sexo" class="form-label small fw-semibold mb-1">Sexo</label>
+    <select id="sexo" name="sexo" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="todos">Todos</option>
+      {% for s in sexos %}<option value="{{ s }}" {% if filtros.sexo == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-6 col-md-4">
+    <label for="contagio" class="form-label small fw-semibold mb-1">Tipo de contagio</label>
+    <select id="contagio" name="contagio" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="todos">Todos</option>
+      {% for c_ in contagios %}<option value="{{ c_ }}" {% if filtros.contagio == c_ %}selected{% endif %}>{{ c_ }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-6 col-md-4">
+    <a href="{{ url_for('poblacional.tablero') }}" class="btn btn-outline-secondary btn-sm w-100">
+      <i class="bi bi-arrow-counterclockwise me-1"></i>Quitar filtros
+    </a>
+  </div>
+  <noscript><div class="col-12"><button class="btn btn-primary btn-sm">Aplicar</button></div></noscript>
+</form>
+
+{% if not hay_datos %}
+<div class="alert alert-warning">No hay casos con esa combinación de filtros.</div>
+{% else %}
+
+<!-- Indicadores -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-4">
+  {{ c.indicador(num(casos), "Casos en Chía", "bi-people", "según filtros aplicados") }}
+  {{ c.indicador("%.1f%%"|format(pct_mujeres), "Participación femenina", "bi-gender-female", "del total filtrado") }}
+  {{ c.indicador("%.1f%%"|format(pct_leve), "Casos leves", "bi-heart-pulse", "edad mediana: " ~ "%.0f"|format(edad_mediana) ~ " años") }}
+</div>
+
+<!-- Visualizaciones -->
+<p class="small text-secondary mb-3"><i class="bi bi-funnel me-1"></i>Las gráficas y los indicadores responden a los filtros. Las interpretaciones describen el total de registros; con filtros, algunos valores cambian.</p>
+
+{{ c.grafica("1. Casos por sexo", g_sexo,
+   "Las mujeres representan una participación ligeramente mayor que los hombres entre los casos confirmados. La diferencia es moderada y no sugiere un sesgo marcado hacia ningún sexo.") }}
+
+{{ c.grafica("2. Casos por estado", g_estado,
+   "La inmensa mayoría de los casos fueron leves. Los fallecidos representan una proporción pequeña del total, y los casos clasificados como graves son prácticamente inexistentes en el registro.") }}
+
+{{ c.grafica("3. Distribución de la edad", g_edad,
+   "La mayor concentración de casos se ubica entre los 20 y 50 años, con una mediana de " ~ "%.0f"|format(edad_mediana) ~ " años. Hay pocos casos en edades extremas (niños muy pequeños y adultos mayores de 90 años).") }}
+
+{% endif %}
+
+<!-- Conocimientos evidentes -->
+<h2 class="h4 fw-bold mt-5 mb-1">Conocimientos evidentes</h2>
+<p class="small text-secondary mb-3">Calculados con todos los registros de Chía (sin filtros).</p>
+<div class="accordion mb-4" id="conocimientos">
+  {% for k in conocimientos %}{{ c.conocimiento(loop.index, k) }}{% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100 border-warning-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Limitación del análisis</h2>
+        <p class="small mb-0">
+          El dataset solo contiene casos confirmados por prueba, así que no representa a toda la población de Chía
+          que pudo haberse contagiado. Además, 163 registros no tienen estado reportado y la categoría "grave"
+          casi no se usó, lo que sugiere que la clasificación de gravedad puede no ser del todo consistente.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100 border-success-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-check2-circle me-1 text-success"></i>Decisión sustentada en los datos</h2>
+        <p class="small mb-0">
+          Dado que la gran mayoría de los casos confirmados en Chía fueron leves y el contagio comunitario
+          predominó sobre el rastreado, ante un nuevo brote respiratorio conviene priorizar medidas de prevención
+          generalizadas (aforos, ventilación, uso de tapabocas en espacios cerrados) por encima del rastreo
+          individual de contactos, que resulta poco eficiente cuando la circulación ya es comunitaria.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
