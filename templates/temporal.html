@@ -78,6 +78,17 @@
     "utilidad": "Permite redistribuir recursos de salud a otras patologías y relajar políticas públicas restrictivas.",
     "limitacion": "Puede haber un subregistro masivo por reducción del volumen de pruebas PCR aplicadas en los últimos años."
   }) }}
+
+  {{ c.conocimiento(3, {
+    "pregunta": "¿Existen épocas del año con mayor propensión histórica a repuntes?",
+    "variables": "Mes de notificación (ignorando el año), recuento acumulado",
+    "procedimiento": "Agrupación de todos los casos históricos según el mes del calendario.",
+    "evidencia": "El gráfico de estacionalidad muestra una concentración de casos alrededor de junio y diciembre/enero a lo largo de los años.",
+    "hallazgo": "Patrón de contagio alineado con las temporadas vacacionales.",
+    "interpretacion": "El aumento de la interacción social, reuniones familiares y viajes durante las festividades de mitad y fin de año ha sido el mayor catalizador de las transmisiones locales.",
+    "utilidad": "Permite a las autoridades sanitarias locales planificar campañas de prevención focalizadas y preparar la capacidad hospitalaria antes de estas temporadas.",
+    "limitacion": "El mega-pico inusual de junio de 2021 introduce un fuerte sesgo estadístico en el acumulado de ese mes."
+  }) }}
 </div>
 
 {% endblock %}
