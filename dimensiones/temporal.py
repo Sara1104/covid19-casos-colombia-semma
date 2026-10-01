@@ -2,7 +2,7 @@
 
 Editar solo este archivo y templates/temporal.html.
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 import plotly.express as px
 import pandas as pd
 
@@ -18,6 +18,37 @@ PREGUNTA = ("¿Cómo ha cambiado el comportamiento de la población durante "
 @bp.route("/dimension/temporal")
 def tablero():
     df = cargar_datos()
+
+    # --- Filtros Interactivos ---
+    filtro_sexo = request.args.get('sexo', '')
+    filtro_estado = request.args.get('estado', '')
+
+    if filtro_sexo:
+        df = df[df['sexo'] == filtro_sexo]
+    if filtro_estado:
+        df = df[df['estado'] == filtro_estado]
+
+    # --- Manejo de DataFrame vacío tras los filtros ---
+    if df.empty:
+        indicadores = {
+            "total": "0",
+            "anio_max": "N/A (0 casos)",
+            "mes_max": "N/A (0 casos)"
+        }
+        fig_vacia = px.scatter(title="No hay datos que coincidan con estos filtros")
+        fig_vacia.update_layout(xaxis={"visible": False}, yaxis={"visible": False})
+        grafica1 = grafica2 = grafica3 = a_html(fig_vacia)
+        
+        return render_template(
+            "temporal.html", 
+            pregunta=PREGUNTA,
+            indicadores=indicadores,
+            grafica1=grafica1,
+            grafica2=grafica2,
+            grafica3=grafica3,
+            filtro_sexo=filtro_sexo,
+            filtro_estado=filtro_estado
+        )
 
     # --- Indicadores ---
     total_casos = f"{len(df):,}".replace(",", ".")
@@ -73,7 +104,9 @@ def tablero():
         category_orders={"mes_nombre": list(nombres_meses.values())}
     )
     # Colorear la barra más alta para resaltarla
-    fig3.update_traces(marker_color=['#e07a3f' if x == 'Jun' else '#0f6e7c' for x in df_estacional['mes_nombre']])
+    if not df_estacional.empty:
+        max_mes = df_estacional.loc[df_estacional['casos'].idxmax(), 'mes_nombre']
+        fig3.update_traces(marker_color=['#e07a3f' if x == max_mes else '#0f6e7c' for x in df_estacional['mes_nombre']])
     grafica3 = a_html(fig3)
 
     return render_template(
@@ -82,5 +115,7 @@ def tablero():
         indicadores=indicadores,
         grafica1=grafica1,
         grafica2=grafica2,
-        grafica3=grafica3
+        grafica3=grafica3,
+        filtro_sexo=filtro_sexo,
+        filtro_estado=filtro_estado
     )

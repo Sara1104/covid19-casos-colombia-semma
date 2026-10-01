@@ -6,6 +6,36 @@
 {% block contenido %}
 {{ c.encabezado("Dimensión temporal", pregunta, "Integrante 3 · Diego Nicolás Castellanos Martínez") }}
 
+<!-- Filtros Interactivos -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <form method="GET" action="/dimension/temporal" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label for="sexo" class="form-label fw-semibold text-secondary small"><i class="bi bi-gender-ambiguous me-1"></i>Filtrar por Sexo:</label>
+        <select name="sexo" id="sexo" class="form-select form-select-sm">
+          <option value="">Todos los géneros</option>
+          <option value="Femenino" {% if filtro_sexo == 'Femenino' %}selected{% endif %}>Femenino</option>
+          <option value="Masculino" {% if filtro_sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="estado" class="form-label fw-semibold text-secondary small"><i class="bi bi-activity me-1"></i>Filtrar por Estado:</label>
+        <select name="estado" id="estado" class="form-select form-select-sm">
+          <option value="">Todos los estados</option>
+          <option value="Leve" {% if filtro_estado == 'Leve' %}selected{% endif %}>Leve</option>
+          <option value="Moderado" {% if filtro_estado == 'Moderado' %}selected{% endif %}>Moderado</option>
+          <option value="Grave" {% if filtro_estado == 'Grave' %}selected{% endif %}>Grave</option>
+          <option value="Fallecido" {% if filtro_estado == 'Fallecido' %}selected{% endif %}>Fallecido</option>
+          <option value="Sin dato" {% if filtro_estado == 'Sin dato' %}selected{% endif %}>Sin dato</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel-fill me-1"></i>Aplicar Filtros</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Indicadores -->
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
   {{ c.indicador(indicadores.total, "Total de casos notificados", "bi-calendar3", "Rango: 2020 - 2024") }}
