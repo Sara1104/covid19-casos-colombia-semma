@@ -72,4 +72,40 @@
    "Las combinaciones con más registros corresponden a mujeres de 20 a 49 años, con contagio comunitario y recuperadas. Ninguna de las 10 combinaciones más comunes incluye fallecimientos: las muertes se concentran en combinaciones poco frecuentes de personas mayores.") }}
 
 {% endif %}
+
+<!-- Conocimientos evidentes -->
+<h2 class="h4 fw-bold mt-5 mb-1">Conocimientos evidentes</h2>
+<p class="small text-secondary mb-3">Calculados con todos los registros de Chía (sin filtros).</p>
+<div class="accordion mb-4" id="conocimientos">
+  {% for k in conocimientos %}{{ c.conocimiento(loop.index, k) }}{% endfor %}
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100 border-warning-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Limitación del análisis</h2>
+        <p class="small mb-0">
+          La letalidad se calcula solo sobre los casos confirmados por prueba, por lo que no equivale a la mortalidad de toda
+          la población de Chía. Además, el dataset no incluye enfermedades previas, vacunación ni variantes del virus, así que
+          los cruces muestran <em>qué</em> grupos tuvieron peores desenlaces, pero no permiten explicar <em>por qué</em>.
+          Los años 2023 y 2024 tienen muy pocos casos y sus porcentajes no son comparables.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100 border-success-subtle">
+      <div class="card-body">
+        <h2 class="h5 fw-semibold"><i class="bi bi-check2-circle me-1 text-success"></i>Decisión sustentada en los datos</h2>
+        <p class="small mb-0">
+          Como las personas de 60 años o más tuvieron una letalidad unas 16 veces mayor que los menores de 60, y dentro de
+          ellas los hombres casi duplican la letalidad de las mujeres, ante una nueva ola respiratoria la Secretaría de Salud
+          de Chía debería priorizar a los hombres mayores de 60 años en vacunación de refuerzo, seguimiento temprano de
+          síntomas y reserva de capacidad hospitalaria.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

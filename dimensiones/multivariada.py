@@ -118,6 +118,61 @@ def grafica_combinaciones(df):
     return a_html(fig)
 
 
+def conocimientos(df):
+    """Tres conocimientos evidentes, calculados con todos los registros."""
+    fall = df[df["fallecido"]]
+    pct_h_casos = (df["sexo"] == "Masculino").mean() * 100
+    pct_h_muertes = (fall["sexo"] == "Masculino").mean() * 100
+    g70 = df["grupo_edad"] == "70-79"
+    let_h70 = letalidad(df.loc[g70 & (df["sexo"] == "Masculino"), "fallecido"])
+    let_m70 = letalidad(df.loc[g70 & (df["sexo"] == "Femenino"), "fallecido"])
+
+    mayores = df[df["mayor_60"]].groupby("anio")["fallecido"].mean().mul(100)
+    l20, l21, l22 = mayores.get(2020, 0), mayores.get(2021, 0), mayores.get(2022, 0)
+
+    jovenes = fall[fall["edad_anios"] < 40]
+    anios_jov = sorted({int(a) for a in jovenes["anio"].dropna()})
+    top10 = combinaciones(df).head(10)
+    muertes_top = int((top10["recuperado"] == "Fallecido").sum())
+
+    return [
+        {
+            "pregunta": "¿El riesgo de morir por COVID-19 depende a la vez de la edad y del sexo?",
+            "variables": "Grupo de edad, sexo y desenlace del caso (recuperado).",
+            "procedimiento": "Se calculó la letalidad (fallecidos / casos) para cada combinación de sexo y grupo de edad, y se comparó la participación de hombres en los casos y en los fallecimientos.",
+            "evidencia": "Mapa de calor «Letalidad según sexo y grupo de edad» e indicador de letalidad general.",
+            "hallazgo": (f"Los hombres son el {pct_h_casos:.1f}% de los casos pero el {pct_h_muertes:.1f}% de los fallecidos; "
+                         f"entre los 70 y 79 años la letalidad es {let_h70:.1f}% en hombres frente a {let_m70:.1f}% en mujeres."),
+            "interpretacion": "La edad es el factor que más eleva la letalidad, pero dentro de cada grupo de edad los hombres mueren con más frecuencia que las mujeres. Las dos variables juntas explican mejor el riesgo que cada una por separado.",
+            "utilidad": "Permite definir grupos prioritarios combinando dos criterios (edad y sexo) en lugar de uno solo.",
+            "limitacion": "No hay datos de enfermedades previas ni de vacunación, así que no puede concluirse por qué los hombres tienen mayor letalidad.",
+        },
+        {
+            "pregunta": "¿La letalidad de las personas mayores cambió a lo largo de la pandemia?",
+            "variables": "Año de notificación, edad (menores de 60 / 60 o más) y desenlace del caso.",
+            "procedimiento": "Se separaron los casos en menores de 60 y personas de 60 o más, y se calculó la letalidad de cada grupo en cada año.",
+            "evidencia": "Gráfica «Letalidad por año: menores de 60 frente a 60 años o más».",
+            "hallazgo": (f"La letalidad de las personas de 60 años o más pasó de {l20:.1f}% en 2020 a {l21:.1f}% en 2021 "
+                         f"y a {l22:.1f}% en 2022, mientras que en los menores de 60 se mantuvo por debajo del 0,5%."),
+            "interpretacion": "La gran diferencia entre grupos de edad se mantuvo todos los años, pero la letalidad de los mayores cayó con fuerza en 2022, cuando ya había avanzado la vacunación y circulaban otras variantes.",
+            "utilidad": "Muestra que las personas mayores fueron el grupo donde más cambió el desenlace, por lo que conviene seguir su evolución ante nuevas olas.",
+            "limitacion": "El dataset no incluye vacunación ni variantes del virus; la relación con la caída de la letalidad es una posible explicación, no una conclusión de los datos.",
+        },
+        {
+            "pregunta": "¿Qué combinaciones concentran los casos y cuáles son inusuales?",
+            "variables": "Grupo de edad, sexo, tipo de contagio, desenlace del caso y año.",
+            "procedimiento": "Se contaron los casos de cada combinación de cuatro variables y se ordenaron de mayor a menor; además, se revisaron los fallecidos menores de 40 años como casos poco comunes.",
+            "evidencia": "Gráfica «Las 10 combinaciones más frecuentes» e indicador de combinación más frecuente.",
+            "hallazgo": (f"Las 10 combinaciones más comunes reúnen el {top10['pct'].sum():.1f}% de los casos y {muertes_top} de ellas incluyen fallecimientos. "
+                         f"Solo {len(jovenes)} fallecidos tenían menos de 40 años ({len(jovenes) / len(fall) * 100:.1f}% de las muertes), "
+                         f"todos notificados en {' y '.join(map(str, anios_jov))}."),
+            "interpretacion": "El perfil típico del caso en Chía es un adulto joven o de mediana edad, con contagio comunitario, que se recupera. Las muertes aparecen en combinaciones poco frecuentes, y los fallecidos jóvenes son casos inusuales concentrados en los primeros años de la pandemia.",
+            "utilidad": "Ayuda a distinguir entre el perfil que más demanda atención básica (los casos frecuentes) y los perfiles que requieren vigilancia especial (los casos graves y poco comunes).",
+            "limitacion": "Una combinación frecuente no implica mayor riesgo; solo indica dónde hubo más casos confirmados.",
+        },
+    ]
+
+
 def filtrar(df, anio, contagio):
     """Aplica los dos filtros interactivos."""
     if anio != "todos":
