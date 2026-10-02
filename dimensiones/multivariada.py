@@ -5,7 +5,7 @@ analizar conjuntamente tres o más variables?
 """
 import pandas as pd
 import plotly.graph_objects as go
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from datos import cargar_datos, ETIQUETAS_EDAD
 from graficas import a_html, PALETA
@@ -118,14 +118,40 @@ def grafica_combinaciones(df):
     return a_html(fig)
 
 
+def filtrar(df, anio, contagio):
+    """Aplica los dos filtros interactivos."""
+    if anio != "todos":
+        df = df[df["anio"] == int(anio)]
+    if contagio != "todos":
+        df = df[df["tipo_contagio"] == contagio]
+    return df
+
+
 @bp.route("/dimension/multivariada")
 def tablero():
-    df = preparar(cargar_datos())
-    return render_template(
-        "multivariada.html",
-        pregunta=PREGUNTA, variables=VARIABLES, hay_datos=True,
-        g_calor=grafica_calor(df),
-        g_anio=grafica_anio(df),
-        g_combos=grafica_combinaciones(df),
-        **indicadores(df),
+    completo = preparar(cargar_datos())
+    anios_validos = [str(int(a)) for a in sorted(completo["anio"].dropna().unique())]
+    contagios_validos = sorted(completo["tipo_contagio"].dropna().unique())
+
+    anio = request.args.get("anio", "todos")
+    contagio = request.args.get("contagio", "todos")
+    if anio not in ("todos", *anios_validos):
+        anio = "todos"
+    if contagio not in ("todos", *contagios_validos):
+        contagio = "todos"
+
+    df = filtrar(completo, anio, contagio)
+    hay_datos = len(df) > 0
+    contexto = dict(
+        pregunta=PREGUNTA, variables=VARIABLES,
+        anios=anios_validos, contagios=contagios_validos,
+        filtros=dict(anio=anio, contagio=contagio), hay_datos=hay_datos,
     )
+    if hay_datos:
+        contexto.update(
+            g_calor=grafica_calor(df),
+            g_anio=grafica_anio(df),
+            g_combos=grafica_combinaciones(df),
+            **indicadores(df),
+        )
+    return render_template("multivariada.html", **contexto)
