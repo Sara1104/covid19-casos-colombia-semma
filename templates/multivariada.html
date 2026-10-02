@@ -1,7 +1,50 @@
 {% extends "base.html" %}
 {% import "_componentes.html" as c %}
 {% block titulo %}Dimensión relacional y multivariada{% endblock %}
+{% macro num(n) %}{{ "{:,.0f}".format(n).replace(",", ".") }}{% endmacro %}
 {% block contenido %}
 {{ c.encabezado("Dimensión relacional y multivariada", pregunta, "Integrante 4 · Jennifer Andrea Espitia Porra") }}
-{{ c.en_construccion() }}
+
+<!-- Variables -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h2 class="h5 fw-semibold mb-3">Variables utilizadas</h2>
+    <div class="table-responsive">
+      <table class="table table-sm small mb-0 align-middle">
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Tipo</th></tr></thead>
+        <tbody>
+          {% for nombre, desc, tipo in variables %}
+          <tr><td><code>{{ nombre }}</code></td><td>{{ desc }}</td><td class="text-nowrap">{{ tipo }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if not hay_datos %}
+<div class="alert alert-warning">No hay casos con esa combinación de filtros.</div>
+{% else %}
+
+<!-- Indicadores -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3 mb-4">
+  {{ c.indicador("%.2f%%"|format(let_general), "Letalidad general", "bi-activity",
+                 num(fallecidos) ~ " fallecidos de " ~ num(casos) ~ " casos") }}
+  {{ c.indicador(("%.1f veces"|format(razon)) if razon is not none else "—",
+                 "Letalidad de 60+ frente a menores de 60", "bi-people",
+                 "%.2f%%"|format(let_mayor) ~ " frente a " ~ "%.2f%%"|format(let_menor)) }}
+  {{ c.indicador("%.1f%%"|format(combo_pct), "Combinación más frecuente", "bi-diagram-3", combo_texto) }}
+</div>
+
+<!-- Visualizaciones -->
+{{ c.grafica("1. Letalidad según sexo y grupo de edad", g_calor,
+   "La letalidad aumenta con la edad en ambos sexos y no hay fallecimientos registrados antes de los 20 años. A partir de los 30 años la letalidad de los hombres supera a la de las mujeres en todos los grupos; entre los 70 y 79 años llega a 10,9 % en hombres frente a 5,7 % en mujeres.") }}
+
+{{ c.grafica("2. Letalidad por año: menores de 60 frente a 60 años o más", g_anio,
+   "Entre 2020 y 2023, la letalidad de las personas de 60 años o más fue muy superior a la de los menores de 60. En ese grupo de mayor edad bajó de 9,9 % en 2020 a 7,3 % en 2021 y a 1,3 % en 2022. 2023 y 2024 tienen muy pocos casos, así que sus porcentajes no son comparables con los demás años.") }}
+
+{{ c.grafica("3. Las 10 combinaciones más frecuentes (edad · sexo · contagio · desenlace)", g_combos,
+   "Las combinaciones con más registros corresponden a mujeres de 20 a 49 años, con contagio comunitario y recuperadas. Ninguna de las 10 combinaciones más comunes incluye fallecimientos: las muertes se concentran en combinaciones poco frecuentes de personas mayores.") }}
+
+{% endif %}
 {% endblock %}
