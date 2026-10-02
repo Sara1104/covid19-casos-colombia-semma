@@ -201,6 +201,7 @@ def tablero():
         pregunta=PREGUNTA, variables=VARIABLES,
         anios=anios_validos, contagios=contagios_validos,
         filtros=dict(anio=anio, contagio=contagio), hay_datos=hay_datos,
+        conocimientos=conocimientos(completo),
     )
     if hay_datos:
         contexto.update(
