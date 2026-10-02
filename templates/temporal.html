@@ -6,6 +6,29 @@
 {% block contenido %}
 {{ c.encabezado("Dimensión temporal", pregunta, "Integrante 3 · Diego Nicolás Castellanos Martínez") }}
 
+<!-- Descripción de Variables -->
+<div class="card mb-4 shadow-sm border-info">
+  <div class="card-header bg-info bg-opacity-10 text-info-emphasis fw-bold">
+    <i class="bi bi-list-columns me-2"></i>Variables Utilizadas en este Análisis
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Variable</th><th>Tipo</th><th>Uso en el tablero</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>fecha_notificacion</code></td><td>Fecha/Tiempo</td><td>Eje central para medir la evolución cronológica de la pandemia.</td></tr>
+          <tr><td><code>anio</code> (Derivada)</td><td>Categórica</td><td>Agrupación para contrastar el volumen anual de contagios.</td></tr>
+          <tr><td><code>mes</code> (Derivada)</td><td>Categórica</td><td>Agrupación para identificar las olas de contagio y la estacionalidad histórica.</td></tr>
+          <tr><td><code>sexo</code></td><td>Categórica</td><td>Filtro interactivo para segmentar el comportamiento temporal por género.</td></tr>
+          <tr><td><code>estado</code></td><td>Categórica</td><td>Filtro interactivo para observar la temporalidad según la gravedad del caso.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- Filtros Interactivos -->
 <div class="card mb-4 shadow-sm">
   <div class="card-body">
@@ -89,6 +112,40 @@
     "utilidad": "Permite a las autoridades sanitarias locales planificar campañas de prevención focalizadas y preparar la capacidad hospitalaria antes de estas temporadas.",
     "limitacion": "El mega-pico inusual de junio de 2021 introduce un fuerte sesgo estadístico en el acumulado de ese mes."
   }) }}
+</div>
+
+<!-- Limitación y Decisión Sustentada -->
+<div class="row g-4 mb-5">
+  <div class="col-md-6">
+    <div class="card h-100 border-warning">
+      <div class="card-header bg-warning bg-opacity-10 text-warning-emphasis fw-bold">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>Limitación del Análisis Temporal
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          El análisis asume que la cantidad de casos notificados refleja el nivel real de contagio en el municipio. Sin embargo, existe un <strong>sesgo introducido por la tasa de testeo</strong>. 
+        </p>
+        <p class="card-text mb-0">
+          La aparente caída casi total de los casos en 2023 y 2024 puede estar fuertemente influenciada por la reducción masiva en la aplicación de pruebas PCR por parte de las EPS, más que por una desaparición total del virus. Asimismo, las fechas analizadas son "de notificación", por lo que traen consigo un desfase operativo respecto a la fecha real de infección.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card h-100 border-success">
+      <div class="card-header bg-success bg-opacity-10 text-success-emphasis fw-bold">
+        <i class="bi bi-check-circle-fill me-2"></i>Decisión Sustentada
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          Basados en el hallazgo contundente sobre la <strong>estacionalidad de los contagios</strong> (repuntes históricos asociados siempre a junio y diciembre/enero), se propone la siguiente política pública en salud:
+        </p>
+        <div class="alert alert-success py-2 mb-0 border-0 bg-success bg-opacity-10">
+          <strong>Recomendación Estratégica:</strong> Establecer campañas preventivas y de refuerzo del esquema de vacunación respiratoria en el municipio de Chía estrictamente un mes antes de las vacaciones de mitad y fin de año (mayo y noviembre), fortaleciendo además el inventario de insumos respiratorios en la red hospitalaria local para esas fechas.
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
