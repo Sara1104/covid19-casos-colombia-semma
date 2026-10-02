@@ -1,7 +1,94 @@
 {% extends "base.html" %}
 {% import "_componentes.html" as c %}
+
 {% block titulo %}Dimensión temporal{% endblock %}
+
 {% block contenido %}
 {{ c.encabezado("Dimensión temporal", pregunta, "Integrante 3 · Diego Nicolás Castellanos Martínez") }}
-{{ c.en_construccion() }}
+
+<!-- Filtros Interactivos -->
+<div class="card mb-4 shadow-sm">
+  <div class="card-body">
+    <form method="GET" action="/dimension/temporal" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label for="sexo" class="form-label fw-semibold text-secondary small"><i class="bi bi-gender-ambiguous me-1"></i>Filtrar por Sexo:</label>
+        <select name="sexo" id="sexo" class="form-select form-select-sm">
+          <option value="">Todos los géneros</option>
+          <option value="Femenino" {% if filtro_sexo == 'Femenino' %}selected{% endif %}>Femenino</option>
+          <option value="Masculino" {% if filtro_sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="estado" class="form-label fw-semibold text-secondary small"><i class="bi bi-activity me-1"></i>Filtrar por Estado:</label>
+        <select name="estado" id="estado" class="form-select form-select-sm">
+          <option value="">Todos los estados</option>
+          <option value="Leve" {% if filtro_estado == 'Leve' %}selected{% endif %}>Leve</option>
+          <option value="Moderado" {% if filtro_estado == 'Moderado' %}selected{% endif %}>Moderado</option>
+          <option value="Grave" {% if filtro_estado == 'Grave' %}selected{% endif %}>Grave</option>
+          <option value="Fallecido" {% if filtro_estado == 'Fallecido' %}selected{% endif %}>Fallecido</option>
+          <option value="Sin dato" {% if filtro_estado == 'Sin dato' %}selected{% endif %}>Sin dato</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-funnel-fill me-1"></i>Aplicar Filtros</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Indicadores -->
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+  {{ c.indicador(indicadores.total, "Total de casos notificados", "bi-calendar3", "Rango: 2020 - 2024") }}
+  {{ c.indicador(indicadores.anio_max, "Año con más casos", "bi-graph-up-arrow", "Pico más alto de contagios") }}
+  {{ c.indicador(indicadores.mes_max, "Mes pico histórico", "bi-exclamation-triangle", "Mayor concentración de casos") }}
+</div>
+
+<!-- Gráficas -->
+{{ c.grafica("1. Evolución mensual de contagios", grafica1, "La evolución de los casos a lo largo del tiempo evidencia picos muy marcados en ciertos meses de 2020 y 2021 (las llamadas 'olas' de la pandemia), seguidas por valles de estabilización. A partir de 2022 y sobre todo en 2023 se observa una reducción drástica hacia cifras muy bajas, evidenciando el control epidemiológico.") }}
+
+<div class="row row-cols-1 row-cols-lg-2 g-4 mb-4">
+  <div class="col">
+    {{ c.grafica("2. Contagios por Año", grafica2, "El año 2021 fue claramente el de mayor impacto para el municipio, concentrando más de la mitad de los casos históricos (17.937), seguido de 2022 y 2020. 2023 y 2024 muestran números marginales comparativos.") }}
+  </div>
+  <div class="col">
+    {{ c.grafica("3. Estacionalidad Acumulada", grafica3, "Agrupando todos los años analizados, el mes de junio acumula históricamente la mayor cantidad de contagios notificados, en gran parte influenciado por el súper pico de junio de 2021. Los meses de mitad de año y de fin/inicio de año (Diciembre/Enero) muestran tendencias de aumento.") }}
+  </div>
+</div>
+
+<!-- Conocimientos Evidentes -->
+<div class="accordion mb-5" id="acordeonConocimientos">
+  {{ c.conocimiento(1, {
+    "pregunta": "¿En qué momento exacto se presentó la mayor crisis sanitaria local?",
+    "variables": "Fecha de notificación, mes, año",
+    "procedimiento": "Agrupación de casos por mes y año y búsqueda del máximo global.",
+    "evidencia": "El mes de Junio de 2021 registró 4.864 casos notificados, siendo el pico más alto de todo el dataset.",
+    "hallazgo": "La tercera ola de contagios (mediados de 2021) fue la más severa.",
+    "interpretacion": "El impacto del virus en este periodo superó todos los meses anteriores y posteriores, probablemente coincidiendo con nuevas variantes y antes de la inmunización completa poblacional.",
+    "utilidad": "Entender la temporalidad de la pandemia sirve para futuros modelos de contención ante nuevos virus, y cuándo preparar UCIs.",
+    "limitacion": "No se contrasta con datos de vacunación para explicar la caída posterior a este pico."
+  }) }}
+
+  {{ c.conocimiento(2, {
+    "pregunta": "¿La pandemia ya terminó estadísticamente en la zona?",
+    "variables": "Año de notificación, cantidad de registros",
+    "procedimiento": "Conteo de casos notificados filtrados por los años más recientes (2023, 2024).",
+    "evidencia": "En 2023 solo se registraron 223 casos, y en lo que va de 2024, una cantidad casi nula en comparación con los 17 mil de 2021.",
+    "hallazgo": "Caída drástica de notificaciones y estabilización endémica.",
+    "interpretacion": "El virus ha dejado de ser una emergencia y ha pasado a ser una enfermedad con tasas bajas y controladas.",
+    "utilidad": "Permite redistribuir recursos de salud a otras patologías y relajar políticas públicas restrictivas.",
+    "limitacion": "Puede haber un subregistro masivo por reducción del volumen de pruebas PCR aplicadas en los últimos años."
+  }) }}
+
+  {{ c.conocimiento(3, {
+    "pregunta": "¿Existen épocas del año con mayor propensión histórica a repuntes?",
+    "variables": "Mes de notificación (ignorando el año), recuento acumulado",
+    "procedimiento": "Agrupación de todos los casos históricos según el mes del calendario.",
+    "evidencia": "El gráfico de estacionalidad muestra una concentración de casos alrededor de junio y diciembre/enero a lo largo de los años.",
+    "hallazgo": "Patrón de contagio alineado con las temporadas vacacionales.",
+    "interpretacion": "El aumento de la interacción social, reuniones familiares y viajes durante las festividades de mitad y fin de año ha sido el mayor catalizador de las transmisiones locales.",
+    "utilidad": "Permite a las autoridades sanitarias locales planificar campañas de prevención focalizadas y preparar la capacidad hospitalaria antes de estas temporadas.",
+    "limitacion": "El mega-pico inusual de junio de 2021 introduce un fuerte sesgo estadístico en el acumulado de ese mes."
+  }) }}
+</div>
+
 {% endblock %}
